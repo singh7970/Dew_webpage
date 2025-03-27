@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Scenic Login Page</title>
+    {% load static %}
     <style>
         * {
             margin: 0;
@@ -295,6 +296,7 @@
 {% endif %}
         <form method="POST">
             {% csrf_token %}
+            {% load socialaccount %}
 
             <div class="input-group">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
@@ -320,6 +322,9 @@
                 </div>
                 <a href="#" class="forgot-link">Forgot Password?</a>
             </div>
+            <a href="{% provider_login_url 'google' %}">
+                <img src="{% static 'img/sigh_in.png' %}" alt="Sign in with Google">
+            </a>
             <button type="submit" class="login-btn">Login</button>
             <div class="register-link">
                 Don't have an account? <a href="{% url 'Register_user' %}">Register</a>
