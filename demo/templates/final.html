@@ -1,0 +1,38 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login</title>
+    <style>
+        .google-btn {
+            display: flex;
+            align-items: center;
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+            font-size: 16px;
+            font-weight: bold;
+            width: 220px;
+            justify-content: center;
+        }
+        .google-btn img {
+            width: 20px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    {% load socialaccount %}
+    <h2>Login with Google</h2>
+    <a href="{% provider_login_url 'google' %}">
+        <img src="https://developers.google.com/identity/images/btn_google_signin_dark_normal_web.png" 
+             alt="Sign in with Google">
+    </a>
+</body>
+</html>
