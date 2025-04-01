@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     
+    
     ]
 
 
@@ -92,6 +93,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv("db_name"),
+        'USER': 'singh',
+        'PASSWORD': os.getenv("db_password"),
+        'HOST': 'localhost',  # Change if your MySQL server is on another host
+        'PORT': '3306',       # Default MySQL port
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
@@ -156,7 +170,12 @@ REST_FRAMEWORK = {
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
-    )
+    ),
+      'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+          'rest_framework.renderers.BrowsableAPIRenderer',  # Ensure this is enabled
+    ),
+    
 }
 
 
@@ -220,3 +239,19 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
 }
+
+
+
+# only for debugging# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+#mail verification
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+EMAIL_HOST = "smtp.gmail.com"  # Change this if using another provider
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST_USER = "raj3847kumar@gmail.com"  # Your email address
+EMAIL_HOST_PASSWORD = "lcscobyvkqzgiffe" 
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER

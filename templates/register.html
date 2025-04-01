@@ -208,6 +208,7 @@
         <form method="post">
             {% csrf_token %}
             {% load socialaccount %}
+            <a href="{% url 'send_otp' %}">otp</a>
             
            
             <div class="form-group name-group">

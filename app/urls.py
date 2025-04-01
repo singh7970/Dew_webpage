@@ -14,9 +14,11 @@ urlpatterns = [
     path('home/',views.home,name ='home'),
     path('contact/',views.contact,name ='contact'),
 
-    # path('drf_view/', views.drf_view, name='drf_view'),
+    path('drf_view/', views.drf_view, name='drf_view'),
     path('logout/', views.logout_v, name='logout_v'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("send-otp/", views.send_otp, name="send_otp"),
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
     
     ]
