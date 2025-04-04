@@ -37,7 +37,8 @@ from django.utils.timezone import now
 from datetime import timedelta
 
 class OTP(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    email = models.EmailField()
+    
     otp_code = models.CharField(max_length=6)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -47,7 +48,5 @@ class OTP(models.Model):
     @staticmethod
     def generate_otp():
         return str(random.randint(100000, 999999))  # Generate 6-digit OTP
-    def __str__(self):
-        return self.user
    
 

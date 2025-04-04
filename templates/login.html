@@ -289,11 +289,26 @@
 
     <div class="login-container">
         <h1>Login</h1>
-        {% if messages %}
-    {% for message in messages %}
-            <div class="messages{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
+        <!-- {% if messages %}
+        {% for message in messages %} -->
+          <!-- <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <script>
+            Swal.fire({
+              title: "Error!",
+              text: "{{ message }}",
+              icon: "error",
+              confirmButtonText: "OK"
+            });
+          </script>
+        {% endfor %}
+      {% endif %} -->
+      {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
         <form method="POST">
             {% csrf_token %}
             {% load socialaccount %}

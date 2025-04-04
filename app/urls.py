@@ -20,5 +20,8 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("send-otp/", views.send_otp, name="send_otp"),
     path("verify-otp/", views.verify_otp, name="verify_otp"),
+    path('protected/', views.protected_view, name='protected_view'),
+  
+
     
     ]

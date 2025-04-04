@@ -17,7 +17,10 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.hashers import check_password
 
+# app/views.py
+import logging
 
+logger = logging.getLogger('app')  
 
 def index(request):
     return render(request,'index.html')
@@ -26,6 +29,12 @@ def index(request):
 @permission_classes([IsAuthenticated])
 @login_required()
 def home(request):
+    logger.debug("This is a DEBUG message")
+    logger.info("This is an INFO message")
+    logger.warning("This is a WARNING message")
+    logger.error("This is an ERROR message")
+    logger.critical("This is a CRITICAL message")
+    
     return render(request, "home.html")
 
 
@@ -127,11 +136,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-@api_view(['POST'])
-@authentication_classes([JWTAuthentication])
-@permission_classes([IsAuthenticated])
-def protected_view(request):
-    return Response({"message": "You are authenticated!"})
+
 
 
 
@@ -142,49 +147,91 @@ from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.contrib import messages
 from .models import OTP
+from django.http import JsonResponse
+import json
 
 def send_otp(request):
     if request.method == "POST":
-        email = request.POST.get("email")
-        print(email)  # Debugging
+        data = json.loads(request.body)
+        email = data.get("email")
 
-        # Get or create user
-        user, created = User.objects.get_or_create(username=email, email=email)
+        if not email:
+            return JsonResponse({"success": False, "message": "Invalid email address."})
 
-        # Generate and save OTP
+        # Remove any existing OTPs for this email
+        OTP.objects.filter(email=email).delete()
+
+        # Generate and save a new OTP
         otp_code = OTP.generate_otp()
-        OTP.objects.create(user=user, otp_code=otp_code)
+        OTP.objects.create(email=email, otp_code=otp_code)
 
         # Send OTP via email
         send_mail(
             "Your OTP Code",
             f"Your OTP code is {otp_code}. It expires in 5 minutes.",
-            "raj3847kumar@gmail.com",  # Change to your actual email
+            "raj3847kumar@gmail.com",  # Replace with your actual email
             [email],
             fail_silently=False,
         )
 
-        messages.success(request, "OTP sent to your email.")
-        return redirect("verify_otp")  # Redirect to verification page
+        return JsonResponse({"success": True, "message": "OTP sent to your email."})
 
-    return render(request, "send-otp.html")
-
+    return JsonResponse({"success": False, "message": "Invalid request."})
 def verify_otp(request):
     if request.method == "POST":
-        email = request.POST.get("email")
-        otp_code = request.POST.get("otp")
+        data = json.loads(request.body)
+        email = data.get("email")
+        otp_code = data.get("otp")
 
         try:
-            user = User.objects.get(email=email)
-            otp_instance = OTP.objects.filter(user=user, otp_code=otp_code).last()
+            
+            otp_instance = OTP.objects.filter(email=email, otp_code=otp_code).order_by("-created_at").first()
+
+            print(otp_instance)
 
             if otp_instance and otp_instance.is_valid():
-                messages.success(request, "Email verified successfully!")
-                otp_instance.delete()  # Delete OTP after successful verification
-                return redirect("login_user")  # Redirect after successful login
-            else:
-                messages.error(request, "Invalid mail or expired OTP.")
-        except User.DoesNotExist:
-            messages.error(request, "User not found.")
+                otp_instance.delete()  # OTP is used, so delete it
+                return JsonResponse({"verified": True, "message": "Email verified successfully!"})
 
-    return render(request, "verify_otp.html")
+            return JsonResponse({"verified": False, "message": "Invalid or expired OTP."})
+
+        except User.DoesNotExist:
+            return JsonResponse({"verified": False, "message": "User not found."})
+
+    return JsonResponse({"verified": False, "message": "Invalid request."})
+
+
+
+# def verify_otp(request):
+#     if request.method == "POST":
+#         try:
+#             data = json.loads(request.body)
+#             email = data.get("email")
+#             otp_code = data.get("otp")
+
+#             print(f"Received Email: {email}")
+#             print(f"Received OTP: {otp_code}")
+
+#             if not email or not otp_code:
+#                 return JsonResponse({"error": "Email and OTP are required"}, status=400)
+
+#             otp_entry = OTP.objects.filter(email=email).order_by("-created_at").first()
+#             print(otp_entry)
+#             print(f"Stored OTP: {otp_entry.otp_code if otp_entry else 'No OTP found'}")
+
+#             if not otp_entry or otp_entry.otp_code != otp_code:
+#                 return JsonResponse({"error": "Invalid OTP"}, status=400)
+
+#             otp_entry.delete()
+#             return JsonResponse({"message": "OTP verified successfully!"}, status=200)
+
+#         except Exception as e:
+#             return JsonResponse({"error": f"Failed to verify OTP: {str(e)}"}, status=500)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def protected_view(request):
+    return Response({"message": "You have access to this view!"})
+
+

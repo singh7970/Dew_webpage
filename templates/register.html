@@ -19,7 +19,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(135deg, #9733ee 0%, #4a00e0 100%);
+            background: linear-gradient(135deg, #130d0d 0%, #79fc8f 100%);
             overflow: hidden;
             position: relative;
         }
@@ -34,7 +34,7 @@
         .element-1 {
             width: 100px;
             height: 100px;
-            background-color: rgba(20, 230, 230, 0.8);
+            background-color: rgba(122, 136, 57, 0.8);
             top: 10%;
             left: 5%;
         }
@@ -131,8 +131,8 @@
             padding: 12px 20px;
             border: none;
             border-radius: 30px;
-            background-color: white;
-            color: #555;
+            background-color: #647b63;
+            color: #000000;
             font-size: 14px;
             outline: none;
             transition: all 0.3s;
@@ -156,7 +156,7 @@
             margin-right: 10px;
             width: 16px;
             height: 16px;
-            accent-color: #14e6e6;
+            accent-color: #79a097;
         }
         
         .terms-group a {
@@ -170,7 +170,7 @@
             padding: 14px;
             border: none;
             border-radius: 30px;
-            background-color: #14e6e6;
+            background-color: #317348;
             color: white;
             font-size: 16px;
             font-weight: 600;
@@ -184,6 +184,52 @@
             background-color: #0dcece;
             box-shadow: 0 4px 12px rgba(20, 230, 230, 0.4);
         }
+
+        #send-otp {
+    background-color: #23573d;
+    color: #fff;
+    padding: 08px 14px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    border-radius: 111px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#send-otp:hover {
+  background-color: #2c6d2a;
+  transform: translateY(-2px);
+}
+
+#send-otp:active {
+  transform: scale(0.97);
+  background-color: #3730a3;
+}
+#verify-otp {
+  background-color:#23573d;
+  color: #fff;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#verify-otp:hover {
+  background-color: #0d9488;
+  transform: translateY(-2px);
+}
+
+#verify-otp:active {
+  transform: scale(0.97);
+  background-color: #0f766e;
+}
+
     </style>
 </head>
 <body>
@@ -199,54 +245,117 @@
     
     <!-- Registration form -->
     <div class="register-container">
-        <h1 class="register-title">REGISTER</h1>
+        <h1 class="register-title">REGISTER</h1>  <!-- Always visible title -->
+
         {% if messages %}
-    {% for message in messages %}
-            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-{% endif %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
         <form method="post">
             {% csrf_token %}
             {% load socialaccount %}
-            <a href="{% url 'send_otp' %}">otp</a>
-            
-           
-            <div class="form-group name-group">
-                <input type="text" name="first-name" placeholder="First Name" required>
-                <input type="text" name="last-name" placeholder="Last Name" required>
-            </div>
-            <div class="form-group name-group">
-                <input type="text" name="username" placeholder="Username" required>
-                {% if errors.username %} <p class="error">{{ errors.username }}</p> {% endif %}  
-      
-                
-            </div>
-            
+
+            <!-- Email Verification -->
             <div class="form-group">
-                <input type="email"  name="email" placeholder="Email" required>
+                <input type="email" id="email" name="email" placeholder="First verify your Email" required>
+                <button type="button" id="send-otp">Send OTP</button>
             </div>
-            
-            <div class="form-group">
-                <input type="password" name="password" placeholder="Password" required>
+
+            <!-- OTP Verification -->
+            <div class="form-group" id="otp-section" style="display: none;">
+                <input type="text" id="otp" name="otp" placeholder="Enter OTP" required>
+               
+                <button type="button" id="verify-otp">Verify OTP</button>
+
+                <p id="otp-status"></p>
             </div>
-            
-            <div class="form-group">
-                <input type="password" name="conf_password"  placeholder="Confirm Password" required>
+
+            <!-- Name and Username Fields (Hidden Initially) -->
+            <div id="user-info-fields" style="display: none;">
+                <div class="form-group name-group">
+                    <input type="text" name="first-name" placeholder="First Name" required>
+                    <input type="text" name="last-name" placeholder="Last Name" required>
+                </div>
+
+                <div class="form-group name-group">
+                    <input type="text" name="username" placeholder="Username" required>
+                </div>
             </div>
-            
+
+            <!-- Password Fields (Hidden Initially) -->
+            <div id="registration-fields" style="display: none;">
+                <div class="form-group">
+                    <input type="password" name="password" placeholder="Password" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" name="conf_password" placeholder="Confirm Password" required>
+                </div>
+            </div>
+
+            <!-- Always Visible Register Button -->
+            <button type="submit" class="register-btn" id="register-btn" disabled>Register Now</button>
+
             <div class="terms-group">
-                <input type="checkbox" id="terms" required>
-                <label for="terms">I accept <a href="#">Terms of Use</a></label>
-            </div>
-            
-            <button type="submit" class="register-btn">Register Now</button>
-            <a href="{% provider_login_url 'google' %}">
-                <img src="{% static 'img/sigh_in.png' %}" alt="Sign in with Google">
-            </a>
-            <div class="terms-group">
-               You have an account? <a href="{% url 'login_user' %}">Login</a>
+                You have an account? <a href="{% url 'login_user' %}">Login</a>
             </div>
         </form>
     </div>
+
+    <script>
+        document.getElementById("send-otp").addEventListener("click", function() {
+            let email = document.getElementById("email").value;
+            
+            if (!email) {
+                alert("Please enter a valid email.");
+                return;
+            }
+        
+            fetch("{% url 'send_otp' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ email: email })
+            }).then(response => response.json())
+              .then(data => {
+                  alert(data.message);
+                  if (data.success) {
+                      document.getElementById("otp-section").style.display = "block";  // Show OTP input
+                  }
+              });
+        });
+        
+        document.getElementById("verify-otp").addEventListener("click", function() {
+            let email = document.getElementById("email").value;
+            let otp = document.getElementById("otp").value;
+        
+            if (!otp) {
+                alert("Please enter the OTP.");
+                return;
+            }
+        
+            fetch("{% url 'verify_otp' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                body: JSON.stringify({ email: email, otp: otp })
+            }).then(response => response.json())
+              .then(data => {
+                  document.getElementById("otp-status").innerText = data.message;
+                  if (data.verified) {
+                      // Show name, username, and password fields after OTP verification
+                      document.getElementById("user-info-fields").style.display = "block";
+                      document.getElementById("registration-fields").style.display = "block";
+        
+                      // Enable register button
+                      document.getElementById("register-btn").removeAttribute("disabled");
+                  }
+              });
+        });
+    </script>
 </body>
-</html>

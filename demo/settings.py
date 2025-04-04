@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'rest_framework_simplejwt',
     
     
     ]
@@ -98,9 +99,13 @@ DATABASES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv("db_name"),
+        'NAME': os.getenv("DB_NAME"),
+        # 'NAME': "firstdata",
+
         'USER': 'singh',
-        'PASSWORD': os.getenv("db_password"),
+        # 'PASSWORD': "Singh@7970!",
+        'PASSWORD': os.getenv("DEB_PASSWORD"),
+
         'HOST': 'localhost',  # Change if your MySQL server is on another host
         'PORT': '3306',       # Default MySQL port
         'OPTIONS': {
@@ -242,7 +247,7 @@ SIMPLE_JWT = {
 
 
 
-# only for debugging# EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 
 #mail verification
@@ -255,3 +260,60 @@ EMAIL_USE_SSL = False
 EMAIL_HOST_USER = "raj3847kumar@gmail.com"  # Your email address
 EMAIL_HOST_PASSWORD = "lcscobyvkqzgiffe" 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
+
+
+
+import os
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': os.path.join(BASE_DIR, 'debug.log'),
+            'formatter': 'verbose',
+        },
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+
+    # 'loggers': {
+    #     'django': {
+    #         'handlers': ['file', 'console'],
+    #         'level': 'DEBUG',
+    #         'propagate': True,
+    #     },
+    #     'app': {  # This matches your app name
+    #         'handlers': ['file', 'console'],
+    #         'level': 'DEBUG',
+    #         'propagate': False,
+    #     },
+    # },
+}
